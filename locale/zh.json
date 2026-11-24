@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "思源笔记",
+    "description": "把思源笔记接入 DeepSeek Harness：17 个 siyuan_* 工具（检索 / 读取 / 写入 / 整理）、独立设置页，以及可浏览与预览笔记的聊天侧边抽屉。",
+    "detail": "docs/DETAIL.md"
+  }
+}

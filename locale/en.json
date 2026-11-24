@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "SiYuan Notes",
+    "description": "Bring SiYuan (思源笔记) into DeepSeek Harness: siyuan_* tools for search, read and write, a settings page, and an in-chat note browser drawer.",
+    "detail": "docs/DETAIL.md"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "siyuan-dsh-notes",
+  "version": "0.1.11",
+  "description": "DeepSeek Harness plugin: 把思源笔记接进来 —— 17 个 siyuan_* 工具（检索/读取/写入/整理）、独立设置页，以及可浏览与预览笔记的聊天侧边抽屉。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "locale",
+    "docs",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "manifestVersion": 1,
+    "engines": {
+      "dsh": ">=0.1.5-rc.1 || >=0.1.6-0 || >=0.1.7-0 || >=0.2.1-rc.3"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "siyuan",
+    "思源笔记",
+    "notes"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

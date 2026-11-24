@@ -1,0 +1,8 @@
+# siyuan-dsh-notes bundle patch
+#
+# 装上本包并把它加进 profile 的 dsh.profile.bundles 后，profile 启动会合并这份
+# patch，等价于手写下面这行 mount（id 即插件的稳定标识，改名要同步 lib/client.js
+# 里的 bundle id）。
+- insert:
+    - id: siyuan-notes
+      name: 'siyuan-dsh-notes'
