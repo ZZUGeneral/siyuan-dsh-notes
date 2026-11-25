@@ -1,6 +1,6 @@
 {
   "name": "siyuan-dsh-notes",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "DeepSeek Harness plugin: 把思源笔记接进来 —— 17 个 siyuan_* 工具（检索/读取/写入/整理）、独立设置页，以及可浏览与预览笔记的聊天侧边抽屉。",
   "type": "module",
   "main": "index.js",

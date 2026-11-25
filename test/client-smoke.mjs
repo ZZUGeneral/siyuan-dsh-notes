@@ -142,6 +142,47 @@ const missing = [...new Set(hostNames)].filter((name) => !labelKeys.has(name))
 if (missing.length > 0) throw new Error(`这些工具没有中文展示文案：${missing.join(', ')}`)
 if (labelKeys.size < 17) throw new Error(`工具展示文案只覆盖了 ${labelKeys.size} 个`)
 tree.push(`工具文案覆盖 ${labelKeys.size}/${new Set(hostNames).size}`)
+// ── Markdown 预览：优先用宿主渲染器，缺它时用本地兜底 ──────────────────────
+const { MarkdownPreview, LocalMarkdown } = captured.exports.internals ?? {}
+if (typeof MarkdownPreview !== 'function') throw new Error('没有导出 MarkdownPreview')
+if (captured.exports.internals.hasHostMarkdown()) throw new Error('假宿主不该解析出 MarkdownText')
+
+// 兜底渲染：表格 / 粗体 / 链接 / 待办 / 分割线都要真的产出元素，而不是原样文本
+hooks.length = 0
+const local = LocalMarkdown({ text: '# 标题\n\n| a | b |\n| --- | --- |\n| **粗** | [链](https://x.test) |\n\n- [x] 完成\n\n---' })
+const flattened = JSON.stringify(local)
+for (const tag of ['"h1"', '"table"', '"strong"', '"a"', '"hr"']) {
+  if (!flattened.includes(tag)) throw new Error(`兜底渲染缺少 ${tag} 元素`)
+}
+hooks.length = 0
+const viaFallback = MarkdownPreview({ markdown: '# x' })
+if (viaFallback?.type !== LocalMarkdown) throw new Error('没有宿主渲染器时应走本地渲染')
+tree.push('Markdown 兜底渲染：标题/表格/粗体/链接/待办/分割线')
+
+// 有宿主渲染器时：直接交给 DSH 的 MarkdownText
+const MarkdownTextStub = (props) => ({ type: 'MarkdownTextStub', props })
+let hostCaptured
+globalThis.window.__ModuleLoader__.load = ({ id, factory }) => {
+  hostCaptured = { id, exports: factory((name) => (name === 'react' ? React : name === '@deepseek-ai/dsh-client-ui-primitives' ? { MarkdownText: MarkdownTextStub } : {})) }
+}
+new Function('window', 'require', source)(globalThis.window, (name) => (name === 'react' ? React : {}))
+if (!hostCaptured.exports.internals.hasHostMarkdown()) throw new Error('应该解析到宿主 MarkdownText')
+hooks.length = 0
+const viaHost = hostCaptured.exports.internals.MarkdownPreview({ markdown: '# x' })
+const boundary = viaHost?.props?.children
+if (typeof boundary?.type !== 'function') throw new Error('宿主渲染路径应经过错误边界')
+if (boundary.props?.text !== '# x') throw new Error('MarkdownText 的 text 参数没有透传')
+// 边界组件正常渲染时应把 text 交给宿主 MarkdownText
+hooks.length = 0
+const boundaryInstance = new boundary.type(boundary.props)
+boundaryInstance.setState = (next) => { boundaryInstance.state = { ...boundaryInstance.state, ...next } }
+const boundaryRender = boundaryInstance.render()
+if (boundaryRender?.type !== MarkdownTextStub) throw new Error('边界内应渲染宿主 MarkdownText')
+// 宿主抛错后应回退到本地渲染
+boundaryInstance.state = { failed: true }
+if (boundaryInstance.render()?.type !== hostCaptured.exports.internals.LocalMarkdown) throw new Error('宿主渲染失败时应回退本地渲染')
+tree.push('Markdown 宿主渲染：走 @deepseek-ai/dsh-client-ui-primitives.MarkdownText')
+
 if (appended.length === 0) throw new Error('没有注入样式表')
 if (typeof effectCleanup === 'function') effectCleanup()
 console.log('client smoke ok')
